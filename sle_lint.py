@@ -97,7 +97,8 @@ INT_ALLOW = [r"\bPUBLISHED\b"]
 ACRONYMS = {"FAIL", "WARN", "INTERNAL", "PUBLISHED", "LICENSE", "CODE", "README", "MIT", "URL", "STE", "ASD", "SOP", "SOPS",
             "NOTE", "TODO", "ASAP", "HTTP", "HTML", "JSON", "YYYY", "ISO", "USA",
             "FAQ", "CEO", "LLC", "NASA", "LASC", "CACI", "PAGA", "FEHA", "CCPA",
-            "CIPA", "RICO", "FDUTPA", "UCLA", "ERISA", "OSHA", "HIPAA", "FINRA"}
+            "CIPA", "RICO", "FDUTPA", "UCLA", "ERISA", "OSHA", "HIPAA", "FINRA",
+            "CCP", "IIED", "CPRA"}
 
 SENT_MAX = {"published": 45, "internal": 20}
 STACCATO_WORDS, STACCATO_RUN = 6, 3  # P10: 3+ sentences in a row under 6 words
@@ -175,7 +176,7 @@ def lint(path, profile):
         for rule, sev, pat, msg in rules:
             for m in re.finditer(pat, masked):
                 hit = m.group(0).strip()
-                if rule == "P7" and hit.isupper() and hit.split("-")[0] in ACRONYMS:
+                if rule == "P7" and hit.split("-")[0] in ACRONYMS:
                     continue
                 if rule == "P6" and sev == "WARN" and raw.startswith("# "):
                     continue  # one 'actually' etc. allowed in the headline
