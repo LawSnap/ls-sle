@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""sle_lint.py: lint for LS-SLE 2026-10-04 (LawSnap Simplified Legal English).
+"""sle_lint.py: lint for LS-SLE 2026-10-07 (LawSnap Simplified Legal English).
 
 Flags the mechanical rules in the LS-SLE rulebook (README.md in this repo).
-Judgment rules (S1, S3, S4, P1, P9, P11, I2, I3, I6, and the structure layer) stay manual.
+Judgment rules (S1, S3, S4, P1, P9, P11, I2, I3, I6, and most of the structure layer) stay manual.
 https://github.com/LawSnap/ls-sle  ·  MIT License (see LICENSE-CODE).
 
 Usage:
@@ -36,6 +36,10 @@ PUBLISHED = [
      "contrast-reversal (X isn't the question, Y is): state Y"),
     ("P3", "FAIL", r"(^|[.!?*]\s+)Not\b",
      "sentence starts with 'Not' (Not X. Y.): state Y"),
+    ("P4", "FAIL", r"(?i)\briver\b[^.!?]{0,80}\b(feet|foot|deep|depth)\b|\baverage depth\b",
+     "river-depth metaphor (retired): state the counts, 'Overall, X of Y. In [subgroup], Z of W.'"),
+    ("H3B", "WARN", r"(?i)^#{2,3}\s+(?!where the average misleads)[^\n]*\baverage\b",
+     "exception heading: use exactly 'Where the average misleads' (subtitle after a colon)"),
     ("P4", "FAIL",
      r"\b(nobody|no one) (warns|tells|talks about|mentions)\b|\bthe (trap|secret|truth) (nobody|no one)\b|\bhere['’]s the (thing|kicker|catch|twist)\b|\bthe real (question|story|answer|reason)\b|\bplot twist\b|\bspoiler\b|\bgame[- ]changer\b",
      "hype label: cut it, let the fact carry the weight"),
@@ -130,6 +134,51 @@ def strip_md(s):
     return re.sub(r"[*_`#>\[\]]", "", s)
 
 
+# H6 (2026-10-07): group by the issue, not by the outcome.
+ENABLE_H6 = True
+
+# H6 candidate: a list holds items of one kind. Direction = the first outcome word in each item's label.
+DENY_WORDS = r"denied|denial|denials|denies|overruled|survived|survives"
+GRANT_WORDS = r"struck|strike|strikes|stricken|granted|grant|grants|sustained|dismissed|excluded"
+ITEM_RE = re.compile(r"^\s*(\*\*.+?\*\*|\d+\.\s.*|[-*+]\s.*)")
+
+
+def list_direction_check(lines):
+    """WARN when one section's list items lead with opposite outcomes (deny vs. grant)."""
+    out, items = [], []
+
+    def flush():
+        dirs = {d for _, d in items if d}
+        unlabeled = [n for n, d in items if not d]
+        # Narrow version: a mixed list is fine if every item's label states its outcome.
+        if len(dirs) == 2 and unlabeled:
+            lines_by = ", ".join(f"L{n}:{d}" for n, d in items if d)
+            out.append((items[0][0], "WARN", "H6",
+                        "list mixes outcome directions: group by issue, with losing and winning versions side by side (H6)",
+                        lines_by))
+        items.clear()
+
+    for n, raw in enumerate(lines, 1):
+        if raw.startswith("#"):
+            flush()
+            continue
+        m = ITEM_RE.match(raw)
+        if not m:
+            continue
+        label = m.group(1)
+        bold = re.search(r"\*\*(.+?)\*\*", raw)  # the bold label, wherever it sits
+        if bold:
+            label = bold.group(1)
+        label = mask_quotes(label)
+        w = re.search(rf"(?i)\b({DENY_WORDS}|{GRANT_WORDS})\b", label)
+        d = None
+        if w:
+            d = "deny" if re.fullmatch(rf"(?i){DENY_WORDS}", w.group(1)) else "grant"
+        items.append((n, d))
+    flush()
+    return out
+
+
 def lint(path, profile):
     rules = list(SHARED)
     if profile == "published":
@@ -198,6 +247,8 @@ def lint(path, profile):
                 findings.append((n, "WARN", "P8" if profile == "published" else "I4",
                                  f"sentence is {wc} words (max {SENT_MAX[profile]})",
                                  s[:70] + ("…" if len(s) > 70 else "")))
+    if profile == "published" and ENABLE_H6:
+        findings += list_direction_check(lines)
     return findings
 
 

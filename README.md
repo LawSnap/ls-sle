@@ -1,8 +1,8 @@
-# LS-SLE 2026-10-04: LawSnap Simplified Legal English
+# LS-SLE 2026-10-07: LawSnap Simplified Legal English
 
 A finite, checkable writing standard for legal content written by people and AI models together. It comes with a lint script that flags the mechanical rules.
 
-**Version:** 2026-10-04. The version is the ISO date of the release. A newer date means a newer version.
+**Version:** 2026-10-07. The version is the ISO date of the release. A newer date means a newer version.
 
 ## Why this exists
 
@@ -139,6 +139,19 @@ STE governs sentences. Information Mapping governs blocks. A block is a heading,
 
 **H4. Consistency.** Blocks of the same kind use the same label pattern and the same order in every piece. [manual]
 
+**H6. Group by the issue, not by the outcome.** In "What decides it", each block is one issue the court decided. Show the losing version and the winning version side by side, each with its count. If one side has no count, say so; do not invent one. An item with no pair stays as its own block. [WARN on a list that mixes outcome directions]
+
+Example, motions to strike punitive damages:
+
+| The issue the court decided | What got struck | What survived |
+|---|---|---|
+| How was malice pleaded? | Where the court cited conclusory labels: struck in 222 of 223 | Where the court cited specific facts about what the defendant knew and did: survived in 298 of 321 |
+| Can the claim carry punitive damages at all? | Where only negligence or contract claims remained: struck in 51 of 51 | Where the claim was an intentional tort, usually fraud: survived in 28 of 29 |
+
+- **Format.** The issue-pair table is the main form. Keep the quotes and case examples, inside the cells or in an "Examples" line under each row. Never strip them. Paired bold leads are an acceptable alternative when a piece reads better that way.
+- **Label each count by what the court cited.** Each count covers rulings that cited that reason, so it is not a win rate. Say so once in the method note: "These counts describe the court's stated reason, not a predicted chance of winning."
+- **Check:** a list's heading must be true of every item in it. If it is not, regroup by issue, split the list, or retitle it so the heading covers every item and state each item's outcome.
+
 **H5. Information types.** Each block holds one type.
 
 | Type | What it answers | Example |
@@ -157,12 +170,12 @@ The block names are internal labels. Published headings can use the author's wor
 | # | Block | Type | Required |
 |---|---|---|---|
 | 1 | The number | fact | Yes. May include one sentence on how you looked. |
-| 2 | What decides it | structure + fact (counts by reason) | Yes |
-| 3 | The exception | fact (the subset that breaks the average) | When the data shows one, give it its own labeled block right after block 2. If the data shows none, leave it out. |
+| 2 | What decides it | structure + fact: one block per issue, losing and winning versions side by side (H6) | Yes |
+| 3 | The exception | fact (the subgroup where the overall rate misleads) | When the data shows one, give it its own block right after block 2, headed exactly "Where the average misleads" (any subtitle after a colon). If the data shows none, leave it out. |
 | 4 | What to do | principle (the closing line) | Yes. Step-by-step procedures go in a separate checklist, not the article. |
 | 5 | Method & N | fact | Yes |
 
-Why block 3 matters: an average can be true and still mislead. If the average river depth is 3 feet, the reader needs to know where it is 20 feet deep. That subset is usually the most valuable thing in the piece.
+Why block 3 matters: an overall rate can be true and still mislead. State it plainly: "Overall, 29 of 99. Where the complaint alleged a warning, 14 of 19." That subgroup is usually the most valuable thing in the piece.
 
 ### INTERNAL: work orders are procedures
 
@@ -220,6 +233,7 @@ Write every work order in this block order:
 | X isn't the question. Y is. | "Whether they're wrong isn't the question. Whether you can prove it is." | "Ask one question: can you prove it?" | FAIL |
 | Not X. Y. | "Not a close call. A clear loss." | "It was a clear loss." | FAIL |
 | Hype label | "The trap nobody warns you about." | cut | FAIL |
+| River-depth metaphor | "The average river is 3 feet deep, but there's a spot where it's 20." | "Overall, X of Y. In [subgroup], Z of W." | FAIL |
 | also: "here's the thing," "the real question," "plot twist," "game-changer" | | cut | FAIL |
 | not just | "facts, not just labels" | "facts" | WARN |
 | Negation stack | "not sampled, not summarized" | say what you did | WARN |
@@ -235,6 +249,7 @@ The first article written under this standard: ["What Actually Gets You Sanction
 
 ## Change log
 
+- **2026-10-07:** new rule H6, group by the issue, not by the outcome (losing and winning versions side by side, counts labeled by the cited reason). Fixed heading for the exception block. New ban on the river metaphor: state the counts instead. Lint: H6 WARN, river FAIL, exception-heading WARN.
 - **2026-10-04:** first public release. It builds on three internal drafts (2026-10-01 to 2026-10-03), each tested on real articles before they went live.
 
 ## License
