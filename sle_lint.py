@@ -278,6 +278,8 @@ def readability(lines):
                 syll += ts.syllable_count(w)
                 if i > 0 and t[0].isupper():   # proper noun: familiar by convention
                     continue
+                if sum(c.isupper() for c in t) >= 2:  # acronym (LS-SLE, AI-writing)
+                    continue
                 if not _in(w, easy):
                     hard_raw += 1
                     if not _in(w, terms):

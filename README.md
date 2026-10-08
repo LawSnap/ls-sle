@@ -11,7 +11,7 @@ We publish data-driven findings about how courts rule. Two problems kept showing
 1. **AI-writing tells.** Drafts came back full of em dashes, "it isn't X, it's Y" reversals, and hype labels like "the trap nobody warns you about." Readers notice, and their trust drops.
 2. **Term confusion.** Several AI agents work on the same pipeline. When one wrote "ready" and another read "approved for publication," work shipped that shouldn't have.
 
-Aerospace solved a version of this decades ago with ASD-STE100 (Simplified Technical English): short sentences, one meaning per word, and a finite rulebook you can check. LS-SLE adapts that idea for legal writing. It adds a second layer, from Robert Horn's Information Mapping, for how blocks of text are organized.
+Aerospace solved a version of this decades ago with ASD-STE100 (Simplified Technical English): short sentences, one meaning per word, and a short rulebook you can check. LS-SLE applies that idea to legal writing. It adds a second layer, from Robert Horn's Information Mapping, for how blocks of text are laid out.
 
 LS-SLE is an independent adaptation. It is not affiliated with or endorsed by ASD, which owns the ASD-STE100 standard.
 
