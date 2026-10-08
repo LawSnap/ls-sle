@@ -42,8 +42,8 @@ PUBLISHED = [
      "headline carries the sample size: move 'we read N' to the sub-line or lede"),
     ("P4", "FAIL", r"(?i)\briver\b[^.!?]{0,80}\b(feet|foot|deep|depth)\b|\baverage depth\b",
      "river-depth metaphor (retired): state the counts, 'Overall, X of Y. In [subgroup], Z of W.'"),
-    ("H3B", "WARN", r"(?i)^#{2,3}\s+(?!where the average misleads)[^\n]*\baverage\b",
-     "exception heading: use exactly 'Where the average misleads' (subtitle after a colon)"),
+    ("H3B", "WARN", r"(?i)^#{2,3}\s+(?!what the average hides)(?!where the average misleads)[^\n]*\baverage\b",
+     "exception heading: use exactly 'What the average hides' (subtitle after a colon)"),
     ("P4", "FAIL",
      r"\b(nobody|no one) (warns|tells|talks about|mentions)\b|\bthe (trap|secret|truth) (nobody|no one)\b|\bhere['’]s the (thing|kicker|catch|twist)\b|\bthe real (question|story|answer|reason)\b|\bplot twist\b|\bspoiler\b|\bgame[- ]changer\b",
      "hype label: cut it, let the fact carry the weight"),
@@ -375,6 +375,13 @@ def lint(path, profile):
         for n, h, sc, wc in readability_blocks(lines):
             findings.append((n, "WARN", "P12b", f"block over Dale-Chall {DC_MAX}: {sc} ({wc} prose words)",
                              f"## {h}"))
+    # H3B, 2026-10-08: "Where the average misleads" was the heading until 2026-10-08.
+    # Accept it only on files whose name carries an earlier date.
+    m = re.search(r"(20\d\d-\d\d-\d\d)", os.path.basename(path))
+    if profile == "published" and not (m and m.group(1) < "2026-10-08"):
+        for n, raw in enumerate(lines, 1):
+            if re.match(r"(?i)^#{2,3}\s+where the average misleads", raw):
+                findings.append((n, "WARN", "H3B", "old exception heading: new drafts use 'What the average hides'", raw.strip()))
     return findings
 
 

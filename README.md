@@ -185,7 +185,7 @@ The block names are internal labels. Published headings can use the author's wor
 |---|---|---|---|
 | 1 | The number | fact | Yes. May include one sentence on how you looked. |
 | 2 | What decides it | structure + fact: one block per issue, losing and winning versions side by side (H6) | Yes |
-| 3 | The exception | fact (the subgroup where the overall rate misleads) | When the data shows one, give it its own block right after block 2, headed exactly "Where the average misleads" (any subtitle after a colon). If the data shows none, leave it out. |
+| 3 | The exception | fact (the subgroup where the overall rate misleads) | When the data shows one, give it its own block right after block 2, headed exactly "What the average hides" (any subtitle after a colon). If the data shows none, leave it out. |
 | 4 | What to do | principle (the closing line) | Yes. Step-by-step procedures go in a separate checklist, not the article. |
 | 5 | Method & N | fact | Yes |
 
@@ -263,6 +263,7 @@ The first article written under this standard: ["What Actually Gets You Sanction
 
 ## Change log
 
+- **2026-10-08 (same day):** the exception block heading is now "What the average hides".
 - **2026-10-08:** P12a (10th-grade rewrite), P12b (Dale-Chall vocabulary backstop with a terms-of-art allowlist) and P13 (the headline states the reader's situation). Lint: P12b WARN, optional `textstat`.
 - **2026-10-07:** new rule H6, group by the issue, not by the outcome (losing and winning versions side by side, counts labeled by the cited reason). Fixed heading for the exception block. New ban on the river metaphor: state the counts instead. Lint: H6 WARN, river FAIL, exception-heading WARN.
 - **2026-10-04:** first public release. It builds on three internal drafts (2026-10-01 to 2026-10-03), each tested on real articles before they went live.
