@@ -120,6 +120,15 @@ def mask_quotes(line):
     return re.sub(r'"[^"\n]*"', '"…"', line)
 
 
+CASE_NAME_RE = re.compile(
+    r"(?<![*\w])\*(?!\*)(?:[^*\n]*\sv\.?\s[^*\n]*|(?:In re|Ex parte|In the Matter of)\s[^*\n]*|[Ii]d\.?|[Ii]bid\.?|supra)\*(?!\*)")
+
+
+def mask_case_names(line):
+    """Replace italic case names, *Id.* and *supra* with a placeholder. Required citation form."""
+    return CASE_NAME_RE.sub("*…*", line)
+
+
 def word_rules(words, sev, rule):
     out = []
     for pat, repl in words.items():
@@ -335,6 +344,7 @@ def lint(path, profile):
         text = re.sub(r"https?://\S+", "URL", text)  # bare URLs exempt
         text = re.sub(r"\[\[[^\]]*\]\]", "[[link]]", text)  # vault filenames use " -- "
         masked = mask_quotes(text)
+        masked = mask_case_names(masked)  # citation form is not ours to edit
         if profile == "internal":
             for a in INT_ALLOW:
                 masked = re.sub(a, lambda m: "§" * len(m.group(0)), masked, flags=re.I if "PUBLISHED" not in a else 0)
