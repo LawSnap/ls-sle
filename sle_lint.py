@@ -38,6 +38,8 @@ PUBLISHED = [
      "contrast-reversal (X isn't the question, Y is): state Y"),
     ("P3", "FAIL", r"(^|[.!?*]\s+)Not\b",
      "sentence starts with 'Not' (Not X. Y.): state Y"),
+    ("P13", "WARN", r"(?i)^#\s.*(\bwe (read|reviewed|coded|analyzed|looked at)\b|\b\d[\d,]*\s+(rulings|claims|cases|motions|requests|decisions|orders)\b)",
+     "headline carries the sample size: move 'we read N' to the sub-line or lede"),
     ("P4", "FAIL", r"(?i)\briver\b[^.!?]{0,80}\b(feet|foot|deep|depth)\b|\baverage depth\b",
      "river-depth metaphor (retired): state the counts, 'Overall, X of Y. In [subgroup], Z of W.'"),
     ("H3B", "WARN", r"(?i)^#{2,3}\s+(?!where the average misleads)[^\n]*\baverage\b",
@@ -243,6 +245,21 @@ def prose_lines(lines):
     return out
 
 
+DC_MIN_WORDS = 80  # shorter blocks give unstable scores
+
+
+def readability_blocks(lines):
+    """[(line_no, heading, score)] for each '## ' block over DC_MAX with enough prose."""
+    out, start, head = [], 0, "(top of piece)"
+    bounds = [(i, l[3:].strip()) for i, l in enumerate(lines) if l.startswith("## ")]
+    marks = [(0, "(top of piece)")] + bounds + [(len(lines), None)]
+    for (i, h), (j, _) in zip(marks, marks[1:]):
+        r = readability(lines[i:j])
+        if r and r[3] >= DC_MIN_WORDS and r[0] > DC_MAX:
+            out.append((i + 1, h, r[0], r[3]))
+    return out
+
+
 def readability(lines):
     easy, terms, ts = _load_words()
     if easy is None:
@@ -353,6 +370,9 @@ def lint(path, profile):
             findings.append((0, "WARN", "P12b",
                              f"Dale-Chall {r[0]} (max {DC_MAX}; {r[1]} before the terms-of-art allowlist; FK {r[2]}, not gated)",
                              f"{r[3]} prose words scored. Rewrite at a 10th-grade level (P12a)."))
+        for n, h, sc, wc in readability_blocks(lines):
+            findings.append((n, "WARN", "P12b", f"block over Dale-Chall {DC_MAX}: {sc} ({wc} prose words)",
+                             f"## {h}"))
     return findings
 
 
