@@ -1,7 +1,8 @@
 # LS-SLE terms-of-art allowlist for P12b (Dale-Chall vocabulary backstop).
 # One word per line, lowercase. Plurals and -ed/-ing/-s forms are matched automatically.
 # Rule for adding a word: it must be legal or litigation vocabulary a practitioner reader expects.
-# Do NOT add ordinary words the Dale-Chall list happens to flag ("specific", "pattern", "whether").
+# Do NOT add ordinary words the Dale-Chall list happens to flag ("specific", "pattern", "whether"),
+# or words with the same meaning outside law ("client", "employer", "distress"; advocatus-new-courts, 2026-10-08).
 # Those count against us on purpose: a plainer word is usually available.
 # Built 2026-10-08 from the most frequent flagged words in 21 legal findings articles. Add your own.
 
@@ -81,8 +82,6 @@ litigation
 litigant
 counsel
 attorney
-client
-firm
 plaintiff
 defendant
 superior
@@ -104,8 +103,6 @@ intentional
 willful
 wrongful
 outrageousness
-emotional
-distress
 injury
 causation
 breach
@@ -129,9 +126,6 @@ habitability
 landlord
 tenant
 landlord-tenant
-employer
-employee
-employment
 harassment
 retaliation
 discrimination
@@ -141,5 +135,8 @@ misconduct
 evidence
 innocence
 postconviction
-abuse
-elder
+
+
+# added 2026-10-08 on advocatus-new-courts review
+holding
+tortious

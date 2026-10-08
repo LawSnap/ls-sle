@@ -95,7 +95,7 @@ Allowed: a short fragment that states a fact ("She wasn't.").
 - **Prose only.** Headings, table cells, quotes, case names, citations, case numbers, section cites and links are not scored.
 - **Terms-of-art allowlist** (`terms-of-art.txt`). Legal vocabulary (demurrer, punitive, habitability) does not count against you, so the score measures your word choice, not the law's. Add only legal or litigation words. Your own analytic words ("corpus," "dispositive," "aggregate") stay off. Ordinary words the old Dale-Chall list flags ("specific," "pattern," "whether") stay counted on purpose.
 - **Per block.** The WARN names each `##` section scoring over 7.9 (sections with at least 80 prose words), plus the whole piece.
-- **Why 7.9.** On Dale-Chall's own scale, 7.0 to 7.9 is grades 9 to 10. In our calibration on 21 legal findings articles, whole-file scores ran 9.6 to 11.8, and prose-only scores after the allowlist ran 6.0 to 8.1.
+- **Why 7.9.** On Dale-Chall's own scale, 7.0 to 7.9 is grades 9 to 10. In our calibration on 21 legal findings articles, whole-file scores ran 9.6 to 11.8, and prose-only scores after the allowlist ran 6.2 to 8.1.
 
 **P13. The headline states the reader's situation.** [manual] The title answers "what does this mean for me," not "what did we do." Lead with the reader's question or situation. Put the sample size and "we read N rulings" in the sub-line or the lede, never in the headline. This also applies to email subject lines and social openers.
 - Bad: "Emotional Distress Claims Against Landlords: What Survives a Demurrer? We Read 352 Claims."
