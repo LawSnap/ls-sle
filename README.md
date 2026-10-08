@@ -1,8 +1,8 @@
-# LS-SLE 2026-10-07: LawSnap Simplified Legal English
+# LS-SLE 2026-10-08: LawSnap Simplified Legal English
 
 A finite, checkable writing standard for legal content written by people and AI models together. It comes with a lint script that flags the mechanical rules.
 
-**Version:** 2026-10-07. The version is the ISO date of the release. A newer date means a newer version.
+**Version:** 2026-10-08. The version is the ISO date of the release. A newer date means a newer version.
 
 ## Why this exists
 
@@ -27,7 +27,7 @@ python3 sle_lint.py FILE.md --profile internal
 - Text inside double quotes is exempt. Quoted sources are not yours to edit.
 - Text between `<!-- sle-off -->` and `<!-- sle-on -->` is skipped (useful for a list of banned words).
 - Rules marked [manual] have no lint check. The writer checks them.
-- Requires Python 3. No dependencies.
+- Requires Python 3. No dependencies, except P12b (Dale-Chall), which runs only if `textstat` is installed: `pip install textstat`.
 
 Zero FAILs does not mean the draft is good. A draft can pass the lint and still read flat. See [Voice keeps](#voice-keeps).
 
@@ -81,13 +81,24 @@ Allowed: a short fragment that states a fact ("She wasn't.").
 **P7. One emphasis per section.** Bold, italic, or CAPS. Pick one. Do not stack them (`***not***`). An author's deliberate CAPS can stay. [WARN]
 
 **P8. Sentences: 45 words maximum.** Quoted words do not count. [WARN]
-Many good legal writers write long, clause-heavy sentences joined by "and," "because," and "so." Do not chop them into short ones to satisfy a limit.
+45 words is the mechanical backstop. P12a is where sentences get shorter.
 
 **P9. Say each number once, in its strongest place.** [manual]
 
 **P10. No staccato runs.** Three or more sentences in a row under 6 words, outside a list, is a common AI rhythm. One short sentence for impact is fine. [WARN]
 
 **P11. Register follows the channel.** A findings page uses a sober register. Social can run hotter. Register varies by subject. [manual]
+
+**P12a. Rewrite at a 10th-grade reading level.** [manual] Do it right after the first draft, in every format. Rewrite for plainness: short sentences, common words, one idea per sentence. Keep these exact: quoted court language, case names, citations, and every number with its denominator. Keep legal terms of art. Simplify the sentence around the term, not the term itself.
+
+**P12b. Vocabulary backstop.** [WARN above Dale-Chall 7.9] The lint scores Dale-Chall, not Flesch-Kincaid. Dale-Chall tracks unfamiliar words, which is what makes legal writing feel clunky; Flesch-Kincaid tracks sentence and syllable length. Flesch-Kincaid is reported next to the score but does not gate.
+- **Prose only.** Headings, table cells, quotes, case names, citations, case numbers, section cites and links are not scored.
+- **Terms-of-art allowlist** (`terms-of-art.txt`). Legal vocabulary (demurrer, punitive, habitability) does not count against you, so the score measures your word choice, not the law's. Add only legal or litigation words. Ordinary words the old Dale-Chall list flags ("specific," "pattern," "whether") stay counted on purpose.
+- **Why 7.9.** On Dale-Chall's own scale, 7.0 to 7.9 is grades 9 to 10. In our calibration on 21 legal findings articles, whole-file scores ran 9.6 to 11.8, and prose-only scores after the allowlist ran 6.0 to 8.1.
+
+**P13. The headline states the reader's situation.** [manual] The title answers "what does this mean for me," not "what did we do." Lead with the reader's question or situation. Put the sample size and "we read N rulings" in the sub-line or the lede, never in the headline. This also applies to email subject lines and social openers.
+- Bad: "Emotional Distress Claims Against Landlords: What Survives a Demurrer? We Read 352 Claims."
+- Good: "When Can You Sue Your Landlord for Emotional Distress?"
 
 Legal terms of art are allowed and preferred: grant, deny, tentative ruling, demurrer, safe harbor, meet and confer, with prejudice. Do not "simplify" them.
 
@@ -249,6 +260,7 @@ The first article written under this standard: ["What Actually Gets You Sanction
 
 ## Change log
 
+- **2026-10-08:** P12a (10th-grade rewrite), P12b (Dale-Chall vocabulary backstop with a terms-of-art allowlist) and P13 (the headline states the reader's situation). Lint: P12b WARN, optional `textstat`.
 - **2026-10-07:** new rule H6, group by the issue, not by the outcome (losing and winning versions side by side, counts labeled by the cited reason). Fixed heading for the exception block. New ban on the river metaphor: state the counts instead. Lint: H6 WARN, river FAIL, exception-heading WARN.
 - **2026-10-04:** first public release. It builds on three internal drafts (2026-10-01 to 2026-10-03), each tested on real articles before they went live.
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""sle_lint.py: lint for LS-SLE 2026-10-07 (LawSnap Simplified Legal English).
+"""sle_lint.py: lint for LS-SLE 2026-10-08 (LawSnap Simplified Legal English).
 
 Flags the mechanical rules in the LS-SLE rulebook (README.md in this repo).
 Judgment rules (S1, S3, S4, P1, P9, P11, I2, I3, I6, and most of the structure layer) stay manual.
+P12b (Dale-Chall) runs only if the optional `textstat` package is installed.
 https://github.com/LawSnap/ls-sle  ·  MIT License (see LICENSE-CODE).
 
 Usage:
@@ -13,6 +14,7 @@ Text inside double quotes is exempt (quoted sources are not yours to edit).
 Text between <!-- sle-off --> and <!-- sle-on --> is skipped (for example, a list of banned words).
 """
 import argparse
+import os
 import re
 import sys
 
@@ -179,6 +181,102 @@ def list_direction_check(lines):
     return out
 
 
+# P12b: Dale-Chall vocabulary backstop (WARN above DC_MAX). Needs textstat for the word list;
+# skipped quietly if textstat is not installed. FK grade is reported, never gated.
+DC_MAX = 7.9
+TERMS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "terms-of-art.txt")
+
+
+def _load_words():
+    try:
+        import textstat
+    except ImportError:
+        return None, None, None
+    easy = set()
+    with open(os.path.join(os.path.dirname(textstat.__file__), "resources", "en", "easy_words.txt")) as f:
+        easy = {w.strip().lower() for w in f if w.strip()}
+    terms = set()
+    if os.path.exists(TERMS_FILE):
+        with open(TERMS_FILE) as f:
+            terms = {w.strip().lower() for w in f if w.strip() and not w.startswith("#")}
+    return easy, terms, textstat
+
+
+def _in(word, vocab):
+    if word in vocab:
+        return True
+    for suf, rep in (("ies", "y"), ("es", ""), ("s", ""), ("ed", ""), ("ed", "e"), ("d", ""),
+                     ("ing", ""), ("ing", "e"), ("ly", ""), ("er", ""), ("est", ""), ("'s", "")):
+        if word.endswith(suf) and (word[: -len(suf)] + rep) in vocab:
+            return True
+    return False
+
+
+def prose_lines(lines):
+    """Prose only: no headings, tables, code, comments, quotes, case names, cites, links."""
+    out, in_code, in_front, off = [], False, False, False
+    for n, raw in enumerate(lines, 1):
+        t = raw.strip()
+        if n == 1 and t == "---":
+            in_front = True
+            continue
+        if in_front:
+            in_front = t != "---"
+            continue
+        if t.startswith("```"):
+            in_code = not in_code
+            continue
+        if "<!-- sle-off -->" in raw:
+            off = True
+        if "<!-- sle-on -->" in raw:
+            off = False
+            continue
+        if in_code or off or not t or t.startswith(("#", "|", "<!--", "---")):
+            continue
+        x = re.sub(r"\]\([^)]*\)", "]", raw)
+        x = re.sub(r"https?://\S+|<[^>]+>", " ", x)
+        x = re.sub(r'"[^"]*"|“[^”]*”', " ", x)                       # quoted court language
+        x = re.sub(r"(?<![*\w])\*(?!\*)[^*]+?\*(?!\*)", " ", x)  # *Case Name*
+        x = re.sub(r"§+\s*[\d.()a-z]+|\b\d+\s+Cal\.[^,;)]*|\bNo\.\s*\S+|\b\d[\d,./%-]*\b", " ", x)
+        x = re.sub(r"[*_`>\[\]]|^\s*([-+]|\d+\.)\s+(\[ \]\s*)?", " ", x)
+        out.append(x)
+    return out
+
+
+def readability(lines):
+    easy, terms, ts = _load_words()
+    if easy is None:
+        return None
+    words = sents = hard_raw = hard = syll = 0
+    for x in prose_lines(lines):
+        for sent in sentences(x):
+            toks = re.findall(r"[A-Za-z][A-Za-z'-]*[A-Za-z]|[A-Za-z]", sent)
+            toks = [t for t in toks if len(t) > 1 or t.lower() in ("a", "i")]
+            if not toks:
+                continue
+            sents += 1
+            for i, t in enumerate(toks):
+                w = t.lower()
+                words += 1
+                syll += ts.syllable_count(w)
+                if i > 0 and t[0].isupper():   # proper noun: familiar by convention
+                    continue
+                if not _in(w, easy):
+                    hard_raw += 1
+                    if not _in(w, terms):
+                        hard += 1
+    if not words or not sents:
+        return None
+    wps = words / sents
+
+    def dc(h):
+        pdw = 100.0 * h / words
+        return 0.1579 * pdw + 0.0496 * wps + (3.6365 if pdw > 5 else 0)
+    fk = 0.39 * wps + 11.8 * (syll / words) - 15.59
+    return round(dc(hard), 1), round(dc(hard_raw), 1), round(fk, 1), words
+
+
+
 def lint(path, profile):
     rules = list(SHARED)
     if profile == "published":
@@ -249,6 +347,12 @@ def lint(path, profile):
                                  s[:70] + ("…" if len(s) > 70 else "")))
     if profile == "published" and ENABLE_H6:
         findings += list_direction_check(lines)
+    if profile == "published":
+        r = readability(lines)
+        if r and r[0] > DC_MAX:
+            findings.append((0, "WARN", "P12b",
+                             f"Dale-Chall {r[0]} (max {DC_MAX}; {r[1]} before the terms-of-art allowlist; FK {r[2]}, not gated)",
+                             f"{r[3]} prose words scored. Rewrite at a 10th-grade level (P12a)."))
     return findings
 
 
