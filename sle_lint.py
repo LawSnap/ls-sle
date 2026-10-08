@@ -124,9 +124,21 @@ CASE_NAME_RE = re.compile(
     r"(?<![*\w])\*(?!\*)(?:[^*\n]*\sv\.?\s[^*\n]*|(?:In re|Ex parte|In the Matter of)\s[^*\n]*|[Ii]d\.?|[Ii]bid\.?|supra)\*(?!\*)")
 
 
-def mask_case_names(line):
-    """Replace italic case names, *Id.* and *supra* with a placeholder. Required citation form."""
-    return CASE_NAME_RE.sub("*…*", line)
+SHORT_FORM_RE = re.compile(r"(?<![*\w])\*(?!\*)([A-Z][\w.&'-]*(?:\s+[A-Z][\w.&'-]*){0,3})\*(?!\*)")
+
+
+def full_case_names(lines):
+    """Lowercased text of every full italic case name in the file (for short-form matching)."""
+    return " | ".join(m.group(0).lower() for l in lines for m in CASE_NAME_RE.finditer(l))
+
+
+def mask_case_names(line, full_names=""):
+    """Replace italic case names, *Id.*, *supra*, and short forms (*MAPFRE*) of a case
+    cited in full elsewhere in the file, with a placeholder. Required citation form."""
+    line = CASE_NAME_RE.sub("*…*", line)
+    if full_names:
+        line = SHORT_FORM_RE.sub(lambda m: "*…*" if m.group(1).lower() in full_names else m.group(0), line)
+    return line
 
 
 def word_rules(words, sev, rule):
@@ -314,8 +326,10 @@ def lint(path, profile):
 
     findings = []
     in_code = in_front = off = False
+    case_names = None  # filled after the file is read
     with open(path, encoding="utf-8") as f:
         lines = f.read().split("\n")
+    case_names = full_case_names(lines)
     for n, raw in enumerate(lines, 1):
         if n == 1 and raw.strip() == "---":
             in_front = True
@@ -344,7 +358,7 @@ def lint(path, profile):
         text = re.sub(r"https?://\S+", "URL", text)  # bare URLs exempt
         text = re.sub(r"\[\[[^\]]*\]\]", "[[link]]", text)  # vault filenames use " -- "
         masked = mask_quotes(text)
-        masked = mask_case_names(masked)  # citation form is not ours to edit
+        masked = mask_case_names(masked, case_names)  # citation form is not ours to edit
         if profile == "internal":
             for a in INT_ALLOW:
                 masked = re.sub(a, lambda m: "§" * len(m.group(0)), masked, flags=re.I if "PUBLISHED" not in a else 0)
