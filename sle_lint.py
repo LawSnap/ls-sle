@@ -7,7 +7,7 @@ P12b (Dale-Chall) runs only if the optional `textstat` package is installed.
 https://github.com/LawSnap/ls-sle  ·  MIT License (see LICENSE-CODE).
 
 Usage:
-    python3 sle_lint.py FILE [FILE ...] --profile published|internal
+    python3 sle_lint.py FILE [FILE ...] --profile published|practitioner|internal
 
 Exit code 1 if any FAIL. WARN never fails the run.
 Text inside double quotes is exempt (quoted sources are not yours to edit).
@@ -108,7 +108,7 @@ ACRONYMS = {"FAIL", "WARN", "INTERNAL", "PUBLISHED", "LICENSE", "CODE", "README"
             "CIPA", "RICO", "FDUTPA", "UCLA", "ERISA", "OSHA", "HIPAA", "FINRA",
             "CCP", "IIED", "CPRA"}
 
-SENT_MAX = {"published": 45, "internal": 20}
+SENT_MAX = {"published": 45, "practitioner": 45, "internal": 20}
 STACCATO_WORDS, STACCATO_RUN = 6, 3  # P10: 3+ sentences in a row under 6 words
 ABBREV = r"\b(v|Inc|Corp|Co|No|Cal|App|Supp|Cir|Dist|Ct|U\.S|e\.g|i\.e|Mr|Ms|Dr|St|vs|subd|Civ|Proc|Elec|Pac|Gov|Bus|Prof|Lab|Evid|Pen|Fam|Prob|Veh|Ins|Health|Saf)\."
 
@@ -317,9 +317,14 @@ def readability(lines):
 
 
 
+def is_pub(profile):
+    """PRACTITIONER (2026-10-24) runs every PUBLISHED check except P12a/P12b."""
+    return profile in ("published", "practitioner")
+
+
 def lint(path, profile):
     rules = list(SHARED)
-    if profile == "published":
+    if is_pub(profile):
         rules += PUBLISHED + word_rules(PUB_WORDS_FAIL, "FAIL", "P6") + word_rules(PUB_WORDS_WARN, "WARN", "P6")
     else:
         rules += INTERNAL + word_rules(INT_WORDS_FAIL, "FAIL", "I5") + word_rules(INT_WORDS_WARN, "WARN", "I5")
@@ -375,7 +380,7 @@ def lint(path, profile):
                 findings.append((n, sev, rule, msg, snippet(masked, m.start(), m.end())))
 
         sents = sentences(mask_quotes(text))  # quoted words are not ours; don't count them
-        if profile == "published" and not re.match(r"\s*([-*+]|#+|\d+\.)\s", raw):  # not lists or headings
+        if is_pub(profile) and not re.match(r"\s*([-*+]|#+|\d+\.)\s", raw):  # not lists or headings
             run = 0
             for s in sents:
                 run = run + 1 if len(strip_md(s).split()) < STACCATO_WORDS else 0
@@ -385,12 +390,12 @@ def lint(path, profile):
         for s in sents:
             wc = len(strip_md(s).split())
             if wc > SENT_MAX[profile]:
-                findings.append((n, "WARN", "P8" if profile == "published" else "I4",
+                findings.append((n, "WARN", "P8" if is_pub(profile) else "I4",
                                  f"sentence is {wc} words (max {SENT_MAX[profile]})",
                                  s[:70] + ("…" if len(s) > 70 else "")))
-    if profile == "published" and ENABLE_H6:
+    if is_pub(profile) and ENABLE_H6:
         findings += list_direction_check(lines)
-    if profile == "published":
+    if profile == "published":  # P12a/P12b Dale-Chall: NOT for practitioner guides (expert reader)
         r = readability(lines)
         if r and r[0] > DC_MAX:
             findings.append((0, "WARN", "P12b",
@@ -402,7 +407,7 @@ def lint(path, profile):
     # H3B, 2026-10-08: "Where the average misleads" was the heading until 2026-10-08.
     # Accept it only on files whose name carries an earlier date.
     m = re.search(r"(20\d\d-\d\d-\d\d)", os.path.basename(path))
-    if profile == "published" and not (m and m.group(1) < "2026-10-08"):
+    if is_pub(profile) and not (m and m.group(1) < "2026-10-08"):
         for n, raw in enumerate(lines, 1):
             if re.match(r"(?i)^#{2,3}\s+where the average misleads", raw):
                 findings.append((n, "WARN", "H3B", "old exception heading: new drafts use 'What the average hides'", raw.strip()))
@@ -417,7 +422,7 @@ def snippet(s, a, b, pad=30):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("files", nargs="+")
-    ap.add_argument("--profile", choices=["published", "internal"], required=True)
+    ap.add_argument("--profile", choices=["published", "practitioner", "internal"], required=True)
     ap.add_argument("--fail-only", action="store_true", help="hide WARN lines")
     args = ap.parse_args()
 
