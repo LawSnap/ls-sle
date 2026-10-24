@@ -1,8 +1,8 @@
-# LS-SLE 2026-10-08: LawSnap Simplified Legal English
+# LS-SLE 2026-10-24: LawSnap Simplified Legal English
 
 A finite, checkable writing standard for legal content written by people and AI models together. It comes with a lint script that flags the mechanical rules.
 
-**Version:** 2026-10-08. The version is the ISO date of the release. A newer date means a newer version.
+**Version:** 2026-10-24. The version is the ISO date of the release. A newer date means a newer version.
 
 ## Why this exists
 
@@ -19,6 +19,7 @@ LS-SLE is an independent adaptation. It is not affiliated with or endorsed by AS
 
 ```
 python3 sle_lint.py FILE.md --profile published
+python3 sle_lint.py FILE.md --profile practitioner
 python3 sle_lint.py FILE.md --profile internal
 ```
 
@@ -31,18 +32,21 @@ python3 sle_lint.py FILE.md --profile internal
 
 Zero FAILs does not mean the draft is good. A draft can pass the lint and still read flat. See [Voice keeps](#voice-keeps).
 
-## Two profiles
+## Three profiles
 
 | Profile | Applies to | Goal |
 |---|---|---|
 | INTERNAL | work orders, SOPs, agent instructions, tickets | No ambiguity between the people and agents doing the work. |
-| PUBLISHED | articles, emails, social posts | Reader trust. The author's voice stays. |
+| PUBLISHED | articles, emails, social posts | Reader trust. The author's voice stays. The reader may be new to the topic. |
+| PRACTITIONER | deep practice guides for a reader who already works in the subject | Precision. The reader's fluency is the asset, not something to write around. |
+
+PRACTITIONER runs every PUBLISHED check except the two reading-level rules, P12a and P12b (see below). Everything else, the AI-tell rules, the banned words, the headline rule, the block structure, applies the same way: a practice guide for an expert reader still shouldn't have em dashes doing the work of punctuation, or a headline that teases instead of stating the point.
 
 Personal essays and other writing that is meant to sound like one author are out of scope. A house style is the wrong tool for that.
 
 ---
 
-## Shared rules (both profiles)
+## Shared rules (all three profiles)
 
 **S1. One word, one meaning.** Pick the counting unit once. Use it every time. [manual]
 If a piece says "127 requests" in one place and "127 motions" in another, those are different units. In our own testing, this rule found real counting errors that a citation check had missed.
@@ -89,19 +93,21 @@ Allowed: a short fragment that states a fact ("She wasn't.").
 
 **P11. Register follows the channel.** A findings page uses a sober register. Social can run hotter. Register varies by subject. [manual]
 
-**P12a. Rewrite at a 10th-grade reading level.** [manual] Do it right after the first draft, in every format. Rewrite for plainness: short sentences, common words, one idea per sentence. Keep these exact: quoted court language, case names, citations, and every number with its denominator. Keep legal terms of art. Simplify the sentence around the term, not the term itself.
+**P12a. Rewrite at a 10th-grade reading level.** [manual] Do it right after the first draft, in every format. Rewrite for plainness: short sentences, common words, one idea per sentence. Keep these exact: quoted court language, case names, citations, and every number with its denominator. Keep legal terms of art. Simplify the sentence around the term, not the term itself. **Does not apply under PRACTITIONER** (see below).
 
 **P12b. Vocabulary backstop.** [WARN above Dale-Chall 7.9] The lint scores Dale-Chall, not Flesch-Kincaid. Dale-Chall tracks unfamiliar words, which is what makes legal writing feel clunky; Flesch-Kincaid tracks sentence and syllable length. Flesch-Kincaid is reported next to the score but does not gate.
 - **Prose only.** Headings, table cells, quotes, case names, citations, case numbers, section cites and links are not scored.
 - **Terms-of-art allowlist** (`terms-of-art.txt`). Legal vocabulary (demurrer, punitive, habitability) does not count against you, so the score measures your word choice, not the law's. Add only legal or litigation words. Your own analytic words ("corpus," "dispositive," "aggregate") stay off. Ordinary words the old Dale-Chall list flags ("specific," "pattern," "whether") stay counted on purpose.
 - **Per block.** The WARN names each `##` section scoring over 7.9 (sections with at least 80 prose words), plus the whole piece.
 - **Why 7.9.** On Dale-Chall's own scale, 7.0 to 7.9 is grades 9 to 10. In our calibration on 21 legal findings articles, whole-file scores ran 9.6 to 11.8, and prose-only scores after the allowlist ran 6.2 to 8.1.
+- **Does not apply under PRACTITIONER** (see below).
 
 **P13. The headline states the reader's situation.** [manual] The title answers "what does this mean for me," not "what did we do." Lead with the reader's question or situation. Put the sample size and "we read N rulings" in the sub-line or the lede, never in the headline. This also applies to email subject lines and social openers.
 - Bad: "Emotional Distress Claims Against Landlords: What Survives a Demurrer? We Read 352 Claims."
 - Good: "When Can You Sue Your Landlord for Emotional Distress?"
 - Use a plain, accurate term ("emotional distress"). Never invent one.
 - Lint: WARN when the title says "we read/reviewed/coded/analyzed" or carries a sample count ("352 claims").
+- Applies under PRACTITIONER too, unchanged. Checked directly against two real practice guides: both already keep the sample count out of the title and put it in the lede instead, which is exactly what this rule asks for.
 
 Legal terms of art are allowed and preferred: grant, deny, tentative ruling, demurrer, safe harbor, meet and confer, with prejudice. Do not "simplify" them.
 
@@ -114,6 +120,18 @@ Legal terms of art are allowed and preferred: grant, deny, tentative ruling, dem
 - Rhetorical questions.
 - A colloquial register ("played games in discovery").
 - The author's deliberate CAPS.
+
+---
+
+## PRACTITIONER rules
+
+PRACTITIONER is for the deeper document, written for a reader who already works in the field: a practice guide on a doctrine, a briefing that assumes real fluency, not a first explainer. Run every PUBLISHED check except P12a and P12b.
+
+**Why those two, and only those two.** P12a and P12b exist to protect a reader who may be new to the topic: short sentences, common words, a vocabulary ceiling. A reader who already works in the doctrine does not need that protection, and simplifying their own working vocabulary around them reads as condescending, not accessible. Nothing else about PUBLISHED changes: no dashes, no contrast-reversal, no hype labels, the headline still states the reader's situation rather than teasing it, the block structure still holds. A document written for experts should be exact, not sloppy. The two rules that exist to lower the vocabulary ceiling are the only ones built for the opposite audience.
+
+**Pr1. Keep terms of art. Do not simplify them, and do not rewrite toward a lower reading level.** [manual] This replaces P12a/P12b for this profile. The lint does not score vocabulary or require a 10th-grade pass on a PRACTITIONER file.
+
+Before adding this profile, we checked two real practice guides directly against the lint. Both scored well over the P12b ceiling on dense doctrinal prose, which is the actual case for the exemption. Both also threw dash, contrast-reversal, and hype-label FAILs that had nothing to do with audience level, because neither had ever been run through the lint in any profile. That's worth knowing before treating an unlinted first draft as a model of "how an expert-facing document is supposed to sound": it isn't one yet, in either direction.
 
 ---
 
@@ -255,6 +273,8 @@ Write every work order in this block order:
 | Staccato run | "It failed. Again. Badly." | join them, or keep one | WARN |
 <!-- sle-on -->
 
+These apply under PRACTITIONER too, in full. Only P12a and P12b are excused for that profile.
+
 ---
 
 ## In practice
@@ -263,6 +283,7 @@ The first article written under this standard: ["What Actually Gets You Sanction
 
 ## Change log
 
+- **2026-10-24:** added a third profile, PRACTITIONER, for deep practice guides written for a reader already fluent in the subject. It runs every PUBLISHED check except P12a and P12b. `--profile practitioner` added to the lint.
 - **2026-10-08 (same day):** the exception block heading is now "What the average hides".
 - **2026-10-08:** P12a (10th-grade rewrite), P12b (Dale-Chall vocabulary backstop with a terms-of-art allowlist) and P13 (the headline states the reader's situation). Lint: P12b WARN, optional `textstat`.
 - **2026-10-07:** new rule H6, group by the issue, not by the outcome (losing and winning versions side by side, counts labeled by the cited reason). Fixed heading for the exception block. New ban on the river metaphor: state the counts instead. Lint: H6 WARN, river FAIL, exception-heading WARN.
