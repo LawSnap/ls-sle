@@ -1,8 +1,8 @@
-# LS-SLE 2026-10-24: LawSnap Simplified Legal English
+# LS-SLE 2026-11-17: LawSnap Simplified Legal English
 
 A finite, checkable writing standard for legal content written by people and AI models together. It comes with a lint script that flags the mechanical rules.
 
-**Version:** 2026-10-24. The version is the ISO date of the release. A newer date means a newer version.
+**Version:** 2026-11-17. The version is the ISO date of the release. A newer date means a newer version.
 
 ## Why this exists
 
@@ -55,14 +55,16 @@ If a piece says "127 requests" in one place and "127 motions" in another, those 
 This covers the em dash, a spaced en dash, and a double hyphen. Number ranges ("1–9999") are allowed.
 
 **S3. Every number has a denominator or a date.** Write "4 of 14" or "as of 2026-09-28." Do not write "most" or "many" when you have the count. [manual]
+The same goes for claims about method. "Independently verified" or "re-checked" packs a method into an adjective, and it reads as earned whether or not it is. Say what was run: which tool, against what source, with what result.
 
 **S4. Active voice when the actor matters.** Write "The court struck the pleadings," not "Pleadings were stricken." A short passive is fine when the actor is obvious. [manual]
+This also covers a non-agent doing what a mind does: "the data tells us," "the table shows," "the median hides it." Put a real actor in the subject slot (the court, the corpus, a named count) and let the verb be a verb.
 
 ---
 
 ## PUBLISHED rules
 
-**P1. In the first two sentences, give the situation the reader is in, then the number.** No background opener. [manual]
+**P1. In the first two sentences, give the situation the reader is in, then the number.** No background opener, and no anecdote opener. [manual]
 Example: "When a party moves for non-discovery sanctions in California, the court rarely awards them: about 7% of the time for a frivolous filing."
 
 **P2. No contrast-reversal.** State the fact. Do not deny a claim nobody made. [FAIL]
@@ -77,6 +79,8 @@ Allowed: a real contrast between two findings ("7% here, against 57% for discove
 Allowed: a short fragment that states a fact ("She wasn't.").
 
 **P4. No hype labels.** Cut them. The fact carries the weight. [FAIL]
+Two more families count as P4 (see the banned-pattern table): a structural-metaphor locator ("fault line," "the seam where," "the hinge"), a figure of speech standing in for a mechanism you could name; and performative candour ("let's be honest," "I won't pretend," a sentence that opens with "Honestly," or "Frankly,"), sincerity announced instead of shown.
+Carve-out: real legal vocabulary is not a tell because it sounds dramatic. "Standing," "ruling," "grounds" and "carve-out" are fine, and required, when they are the doctrine the piece is about. The tell is courtroom language borrowed for something that is not a court decision.
 
 **P5. No negation stacks.** "not sampled, not coded from a summary field" → say what you did. [WARN]
 
@@ -116,8 +120,8 @@ Legal terms of art are allowed and preferred: grant, deny, tentative ruling, dem
 [manual] Keep these. They are voice, not tells:
 - Concrete examples with real names.
 - A short fragment for impact, used sparingly.
-- A closing line that reframes the whole piece.
-- Rhetorical questions.
+- A closing line that reframes the whole piece, when it lands on a fact or a number. A last line that compresses the piece into a quotable maxim is the AI tell. Ask whether the line can be checked or only admired.
+- Rhetorical questions a real reader asked, answered straight. A question the writer asks only to answer it in the next fragment ("So how does it fail? Mostly by not finishing.") is staging: one plain statement does the same job.
 - A colloquial register ("played games in discovery").
 - The author's deliberate CAPS.
 
@@ -266,7 +270,10 @@ Write every work order in this block order:
 | Not X. Y. | "Not a close call. A clear loss." | "It was a clear loss." | FAIL |
 | Hype label | "The trap nobody warns you about." | cut | FAIL |
 | River-depth metaphor | "The average river is 3 feet deep, but there's a spot where it's 20." | "Overall, X of Y. In [subgroup], Z of W." | FAIL |
-| also: "here's the thing," "the real question," "plot twist," "game-changer" | | cut | FAIL |
+| also: "here's the thing," "the real question," "the actual question," "the part that matters," "plot twist," "game-changer" | | cut | FAIL |
+| Structural-metaphor locator | "the sharpest fault line in the corpus" | name the mechanism: "two circuits reach opposite results on the same facts" | FAIL |
+| also: "the seam where," "the hinge" | | name the mechanism | FAIL |
+| Performative candour | "Let's be honest, the headline number hides the real story." | cut the announcement, state the fact | FAIL |
 | not just | "facts, not just labels" | "facts" | WARN |
 | Negation stack | "not sampled, not summarized" | say what you did | WARN |
 | Stacked emphasis | `***not***` | one emphasis | WARN |
@@ -283,11 +290,16 @@ The first article written under this standard: ["What Actually Gets You Sanction
 
 ## Change log
 
+- **2026-11-17:** three new AI-tell bans, all P4 and all FAIL: a structural-metaphor locator ("fault line," "the seam where," "the hinge"), performative candour ("let's be honest," "I won't pretend," sentence-initial "Honestly," / "Frankly,"), and a broader hype-label list ("the actual question," "the part that matters," "the one thing nobody said," "my favorite part of"). Each was checked for false positives on our own finished articles and on a larger research corpus before release. "The joint" was dropped from the metaphor list for that reason: it is an everyday legal term ("joint motion," "joint stipulation," "joint venture"). Also new: a verification-claims note under S3, an abstraction-agency note under S4, a carve-out for real legal vocabulary under P4, P1 now names the anecdote opener, and the "closing line" and "rhetorical questions" voice keeps are sharpened. Source: see Sources.
 - **2026-10-24:** added a third profile, PRACTITIONER, for deep practice guides written for a reader already fluent in the subject. It runs every PUBLISHED check except P12a and P12b. `--profile practitioner` added to the lint.
 - **2026-10-08 (same day):** the exception block heading is now "What the average hides".
 - **2026-10-08:** P12a (10th-grade rewrite), P12b (Dale-Chall vocabulary backstop with a terms-of-art allowlist) and P13 (the headline states the reader's situation). Lint: P12b WARN, optional `textstat`.
 - **2026-10-07:** new rule H6, group by the issue, not by the outcome (losing and winning versions side by side, counts labeled by the cited reason). Fixed heading for the exception block. New ban on the river metaphor: state the counts instead. Lint: H6 WARN, river FAIL, exception-heading WARN.
 - **2026-10-04:** first public release. It builds on three internal drafts (2026-10-01 to 2026-10-03), each tested on real articles before they went live.
+
+## Sources
+
+The AI-tell rules (the dash, contrast-reversal, hype labels, negation stacks, staccato runs, and the 2026-11-17 additions) draw on the [`declauding`](https://github.com/oaustegard/claude-skills/tree/main/declauding) skill in `oaustegard/claude-skills` (MIT), a catalogue of model-writing tics. LS-SLE adopts only the entries that are cheap to check and that we confirmed as real tells in our own writing. The catalogue's "compressed syntax" family (noun stacks, a dropped "that," a subject held far from its verb) is left out for now, because catching it takes a sentence-level read rather than a phrase match.
 
 ## License
 

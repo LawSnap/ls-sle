@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""sle_lint.py: lint for LS-SLE 2026-10-08 (LawSnap Simplified Legal English).
+"""sle_lint.py: lint for LS-SLE 2026-11-17 (LawSnap Simplified Legal English).
 
 Flags the mechanical rules in the LS-SLE rulebook (README.md in this repo).
 Judgment rules (S1, S3, S4, P1, P9, P11, I2, I3, I6, and most of the structure layer) stay manual.
@@ -45,8 +45,14 @@ PUBLISHED = [
     ("H3B", "WARN", r"(?i)^#{2,3}\s+(?!what the average hides)(?!where the average misleads)[^\n]*\baverage\b",
      "exception heading: use exactly 'What the average hides' (subtitle after a colon)"),
     ("P4", "FAIL",
-     r"\b(nobody|no one) (warns|tells|talks about|mentions)\b|\bthe (trap|secret|truth) (nobody|no one)\b|\bhere['’]s the (thing|kicker|catch|twist)\b|\bthe real (question|story|answer|reason)\b|\bplot twist\b|\bspoiler\b|\bgame[- ]changer\b",
+     r"\b(nobody|no one) (warns|tells|talks about|mentions)\b|\bthe (trap|secret|truth) (nobody|no one)\b|\bhere['’]s the (thing|kicker|catch|twist)\b|\bthe (real|actual) (question|story|answer|reason)\b|\bthe part that matters\b|\bthe one thing (nobody|no one) said\b|\bmy favo[u]?rite part of\b|\bplot twist\b|\bspoiler\b|\bgame[- ]changer\b",
      "hype label: cut it, let the fact carry the weight"),
+    ("P4", "FAIL",
+     r"(?i)\bfault line\b|\bthe seam where\b|\bthe hinge\b",
+     "structural-metaphor locator: name the plain mechanism, not a metaphor for where it breaks"),
+    ("P4", "FAIL",
+     r"(?i)\blet['’]s be honest\b|\bi won['’]t pretend\b|(^|[.!?]\s+)(honestly|frankly),",
+     "performative candour: cut the announcement, keep the sentence"),
     ("P3", "WARN", r"(?i)\bnot just\b",
      "'not just' (a common AI-writing tell): state the fact"),
     ("P5", "WARN", r"\bnot\b[^.!?]{0,40},\s*not\b",
